@@ -42,28 +42,92 @@ $role = $_SESSION['role'];
             }
         }
 
-        function editProduct(productId) {
-            // Iegūstam jaunās vērtības no lietotāja
-            var newName = prompt("Ievadiet jauno nosaukumu:");
-            var newQuantity = prompt("Ievadiet jauno daudzumu:");
+        <!-- Labot produktu funkcija -->
+function editProduct(productId) {
+    // Iegūstam jaunās vērtības no lietotāja
+    var newName = prompt("Ievadiet jauno nosaukumu:");
+    var newQuantity = prompt("Ievadiet jauno daudzumu:");
+    var newPurchasePrice = prompt("Ievadiet jauno iepirkuma cenu:");
+    var newSalePrice = prompt("Ievadiet jauno pārdošanas cenu:");
+    var newReceiptNumber = prompt("Ievadiet jauno ceka numuru:");
+    var newDeliveryDate = prompt("Ievadiet jauno piegādes datumu:");
+    var newCategory = prompt("Ievadiet jauno kategoriju:");
 
-            // Izdzēšam produktu
-            if (newName !== null && newQuantity !== null) {
-                // Izsaucam servera pusi, lai veiktu izmaiņas
-                fetch("produkta-apstrade.php", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/x-www-form-urlencoded",
-                        },
-                        body: "action=edit&id=" + productId + "&newName=" + newName + "&newQuantity=" + newQuantity,
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        // atjauno lapu vai veic citas nepieciešamās darbības
-                    })
-                    .catch(error => console.error("Error:", error));
-            }
+    // Izdzēšam produktu
+    if (
+        newName !== null &&
+        newQuantity !== null &&
+        newPurchasePrice !== null &&
+        newSalePrice !== null &&
+        newReceiptNumber !== null &&
+        newDeliveryDate !== null &&
+        newCategory !== null
+    ) {
+        // Izsaucam servera pusi, lai veiktu izmaiņas
+        fetch("produkta-apstrade.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                },
+                body: "action=edit&id=" + productId +
+                    "&newName=" + newName +
+                    "&newQuantity=" + newQuantity +
+                    "&newPurchasePrice=" + newPurchasePrice +
+                    "&newSalePrice=" + newSalePrice +
+                    "&newReceiptNumber=" + newReceiptNumber +
+                    "&newDeliveryDate=" + newDeliveryDate +
+                    "&newCategory=" + newCategory,
+            })
+            .then(response => response.json())
+            .then(data => {
+                // atjauno lapu vai veic citas nepieciešamās darbības
+            })
+            .catch(error => console.error("Error:", error));
+    }
+}
+
+        function toggleEditMode(rowId) {
+        var row = document.getElementById("row_" + rowId);
+        var cells = row.getElementsByTagName("td");
+
+        for (var i = 0; i < cells.length - 1; i++) { // Exclude the last cell with action buttons
+            var cellValue = cells[i].innerText;
+
+            // Replace cell content with input fields
+            cells[i].innerHTML = "<input type='text' value='" + cellValue + "'>";
         }
+
+        // Change the "Labot" button to "Saglabāt" (Save) button
+        var editButton = row.querySelector(".btn-warning");
+        editButton.innerText = "Saglabāt";
+        editButton.setAttribute("onclick", "saveChanges(" + rowId + ")");
+    }
+
+    function saveChanges(rowId) {
+        var row = document.getElementById("row_" + rowId);
+        var cells = row.getElementsByTagName("td");
+
+        var newData = {};
+        for (var i = 0; i < cells.length - 1; i++) {
+            var input = cells[i].querySelector("input");
+            newData["column_" + i] = input.value;
+
+            // Replace input field with the new cell value
+            cells[i].innerText = input.value;
+        }
+
+        // Change the "Saglabāt" (Save) button back to "Labot" (Edit) button
+        var editButton = row.querySelector(".btn-warning");
+        editButton.innerText = "Labot";
+        editButton.setAttribute("onclick", "toggleEditMode(" + rowId + ")");
+
+        // Perform an AJAX request to save the changes on the server
+        // You need to implement the server-side logic to handle the update
+        // ...
+
+        // Optional: Notify the user that changes were saved
+        alert("Changes saved successfully!");
+    }
     </script>
 </head>
 
@@ -101,6 +165,7 @@ $role = $_SESSION['role'];
 
                 while ($row = $result->fetch_assoc()) {
                     echo "<tr>";
+                    echo "<tr id='row_" . $row['produkta_id'] . "'>";
                     echo "<td>" . $row['nosaukums'] . "</td>";
                     echo "<td>" . $row['daudzums'] . "</td>";
                     echo "<td>" . $row['iepirkuma_cena'] . "</td>";
@@ -109,10 +174,10 @@ $role = $_SESSION['role'];
                     echo "<td>" . $row['kategorija'] . "</td>";
                     echo "<td>" . $row['ceka_nr'] . "</td>";
                     echo "<td>
-                            <button class='btn btn-danger' onclick='deleteProduct(" . $row['produkta_id'] . ")'>Dzēst</button>
-                            <button class='btn btn-warning' onclick='editProduct(" . $row['produkta_id'] . ")'>Labot</button>
-                          </td>";
-                    echo "</tr>";
+                    <button class='btn btn-danger' onclick='deleteProduct(" . $row['produkta_id'] . ")'>Dzēst</button>
+                    <button class='btn btn-warning' onclick='toggleEditMode(" . $row['produkta_id'] . ")'>Labot</button>
+                  </td>";
+                 echo "</tr>";
                 }
                 ?>
             </tbody>
