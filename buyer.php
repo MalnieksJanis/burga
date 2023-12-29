@@ -241,7 +241,7 @@ function pirkt() {
     </form> 
     
     <div id="summa" class="mt-3" style="display: none;">Summa: 0.00</div>
-    <button type="button" class="btn btn-success" onclick="pirkt()">PIRTK</button>
+    <button type="button" class="btn btn-success" onclick="pirkt()">PIRKT</button>
    
 </div>
 
