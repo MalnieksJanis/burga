@@ -137,7 +137,8 @@ function aprēķinātKopsummu() {
     // Parādīt paziņojumu
     alert("Paldies par pirkumu!");
 }
-function pirkt() {
+function pirkt(event) {
+    event.preventDefault();
     // Collect data from the shopping cart
     var ieteikumi = document.getElementById('ieteikumi').getElementsByClassName('list-group-item');
     var pirkumaData = [];
@@ -163,21 +164,42 @@ function pirkt() {
     xhr.setRequestHeader('Content-Type', 'application/json');
 
     xhr.onload = function () {
-        if (xhr.status === 200) {
-            // On successful purchase, clear the shopping cart
-            document.getElementById('ieteikumi').innerHTML = '';
-            document.getElementById('summa').innerText = 'Summa: 0.00';
+    if (xhr.status === 200) {
+        // On successful purchase, fetch and update the product list
+        updateProductList();
 
-            // Show a thank you message or redirect the user
-            alert('Paldies par pirkumu!');
+        // Clear the shopping cart
+        document.getElementById('ieteikumi').innerHTML = '';
+        document.getElementById('summa').innerText = 'Summa: 0.00';
+
+        // Show a thank you message or redirect the user
+        alert('Paldies par pirkumu!');
+    } else {
+        // Handle error
+        console.error('Purchase failed. Status: ' + xhr.status);
+    }
+};
+
+    xhr.send(JSON.stringify(pirkumaData));
+}
+
+function updateProductList() {
+    // Fetch updated product list from the server using AJAX
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', 'get_updated_product_list.php', true);
+
+    xhr.onload = function () {
+        if (xhr.status === 200) {
+            // Update the product list container with the new content
+            var productListContainer = document.getElementById('productListContainer');
+            productListContainer.innerHTML = xhr.responseText;
         } else {
             // Handle error
-            console.error('Purchase failed. Status: ' + xhr.status);
+            console.error('Failed to fetch updated product list. Status: ' + xhr.status);
         }
     };
 
-    // Convert the data to JSON and send the request
-    xhr.send(JSON.stringify(pirkumaData));
+    xhr.send();
 }
     </script>
 </head>
@@ -241,7 +263,7 @@ function pirkt() {
     </form> 
     
     <div id="summa" class="mt-3" style="display: none;">Summa: 0.00</div>
-    <button type="button" class="btn btn-success" onclick="pirkt()">PIRKT</button>
+    <button type="button" class="btn btn-success" onclick="pirkt(event)">PIRKT</button>
    
 </div>
 

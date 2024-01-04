@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 09, 2023 at 12:11 PM
+-- Generation Time: Jan 04, 2024 at 02:41 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.0.28
 
@@ -44,8 +44,16 @@ CREATE TABLE `inventarizacija` (
   `produkta_id` int(11) DEFAULT NULL,
   `fiziskais_daudzums` int(11) DEFAULT NULL,
   `sistematiskais_daudzums` int(11) DEFAULT NULL,
-  `ierakstis` varchar(50) DEFAULT NULL
+  `ierakstis` varchar(50) DEFAULT NULL,
+  `inventarizacijas_datums` date NOT NULL DEFAULT curdate()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `inventarizacija`
+--
+
+INSERT INTO `inventarizacija` (`inventarizacijas_id`, `datums`, `produkta_id`, `fiziskais_daudzums`, `sistematiskais_daudzums`, `ierakstis`, `inventarizacijas_datums`) VALUES
+(1, NULL, NULL, NULL, NULL, NULL, '2024-01-02');
 
 -- --------------------------------------------------------
 
@@ -81,24 +89,26 @@ CREATE TABLE `nauda` (
   `naudas_id` int(11) NOT NULL,
   `nosaukums` varchar(50) DEFAULT NULL,
   `monetas_daudzums` int(11) DEFAULT NULL,
-  `vertiba` decimal(10,2) DEFAULT NULL
+  `vertiba` decimal(10,2) DEFAULT NULL,
+  `inventarizacijas_datums` date DEFAULT NULL,
+  `paskaidrojums` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `nauda`
 --
 
-INSERT INTO `nauda` (`naudas_id`, `nosaukums`, `monetas_daudzums`, `vertiba`) VALUES
-(1, 'Cents', 10, 0.01),
-(2, 'Divi centi', 10, 0.02),
-(3, 'Pieci centi', 10, 0.05),
-(4, 'Desmit centi', 10, 0.10),
-(5, 'Divdesmit centi', 10, 0.00),
-(6, 'Piecdesmit centi', 10, 0.00),
-(7, 'Eiro', 10, 1.00),
-(8, 'Divi eiro', 10, 2.00),
-(9, 'Pieci eiro', 10, 5.00),
-(10, 'Desmit eiro', 10, 10.00);
+INSERT INTO `nauda` (`naudas_id`, `nosaukums`, `monetas_daudzums`, `vertiba`, `inventarizacijas_datums`, `paskaidrojums`) VALUES
+(1, 'Cents', 43, 0.01, '2024-01-02', NULL),
+(2, 'Divi centi', 2, 0.02, '2024-01-02', NULL),
+(3, 'Pieci centi', 1, 0.05, '2024-01-02', NULL),
+(4, 'Desmit centi', 2, 0.10, '2024-01-02', NULL),
+(5, 'Divdesmit centi', 2, 0.00, '2024-01-02', NULL),
+(6, 'Piecdesmit centi', 3, 0.00, '2024-01-02', NULL),
+(7, 'Eiro', 43, 1.00, '2024-01-02', NULL),
+(8, 'Divi eiro', 2, 2.00, '2024-01-02', NULL),
+(9, 'Pieci eiro', 2, 5.00, '2024-01-02', NULL),
+(10, 'Desmit eiro', 1, 10.00, '2024-01-02', NULL);
 
 -- --------------------------------------------------------
 
@@ -127,6 +137,20 @@ CREATE TABLE `naudas_izlietojums` (
   `lietotajs` varchar(50) DEFAULT NULL,
   `summa` decimal(10,2) DEFAULT NULL,
   `datums_izlietots` date DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `nesakritibas`
+--
+
+CREATE TABLE `nesakritibas` (
+  `id` int(11) NOT NULL,
+  `produkta_nosaukums` varchar(255) NOT NULL,
+  `realais_daudzums` int(11) NOT NULL,
+  `ievaditais_daudzums` int(11) NOT NULL,
+  `ievades_laiks` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -182,6 +206,77 @@ CREATE TABLE `pirkumu_vesture` (
   `datums_pirkts` date NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `pirkumu_vesture`
+--
+
+INSERT INTO `pirkumu_vesture` (`id`, `nosaukums`, `daudzums`, `cena`, `datums_pirkts`) VALUES
+(25, 'Marss', 2, 1.00, '2024-01-04'),
+(26, 'Marss', 1, 1.00, '2024-01-04'),
+(27, 'Marss', 2, 1.00, '2024-01-04'),
+(28, 'Marss', 2, 1.00, '2024-01-04'),
+(29, 'Marss', 1, 1.00, '2024-01-04'),
+(30, 'Marss', 1, 1.00, '2024-01-04'),
+(31, 'Marss', 1, 1.00, '2024-01-04'),
+(32, 'Iļģuciema kvass', 1, 1.00, '2024-01-04'),
+(33, 'Rīgas balzāms (upeņu)', 1, 9.00, '2024-01-04'),
+(34, 'Iļģuciema kvass', 11, 1.00, '2024-01-04'),
+(35, 'Iļģuciema kvass', 1, 1.00, '2024-01-04'),
+(36, 'Marss', 1, 1.00, '2024-01-04'),
+(37, 'Marss', 1, 1.00, '2024-01-04'),
+(38, 'Marss', 1, 1.00, '2024-01-04'),
+(39, 'Iļģuciema kvass', 2, 1.00, '2024-01-04'),
+(40, 'Iļģuciema kvass', 1, 1.00, '2024-01-04'),
+(41, 'Iļģuciema kvass', 1, 1.00, '2024-01-04'),
+(42, 'Iļģuciema kvass', 1, 1.00, '2024-01-04'),
+(43, 'Iļģuciema kvass', 1, 1.00, '2024-01-04'),
+(44, 'Iļģuciema kvass', 1, 1.00, '2024-01-04'),
+(45, 'Ādažu čipsi 100g', 1, 3.00, '2024-01-04'),
+(46, 'Marss', 1, 1.00, '2024-01-04'),
+(47, 'Marss', 1, 1.00, '2024-01-04'),
+(48, 'Marss', 1, 1.00, '2024-01-04'),
+(49, 'Marss', 1, 1.00, '2024-01-04'),
+(50, 'Marss', 1, 1.00, '2024-01-04'),
+(51, 'Marss', 1, 1.00, '2024-01-04'),
+(52, 'Marss', 1, 1.00, '2024-01-04'),
+(53, 'Iļģuciema kvass', 1, 1.00, '2024-01-04'),
+(54, 'Iļģuciema kvass', 2, 1.00, '2024-01-04'),
+(55, 'Rīgas balzāms (upeņu)', 1, 9.00, '2024-01-04'),
+(56, 'Rīgas balzāms (upeņu)', 1, 9.00, '2024-01-04'),
+(57, 'Marss', 1, 1.00, '2024-01-04'),
+(58, 'Iļģuciema kvass', 1, 1.00, '2024-01-04'),
+(59, 'Marss', 1, 1.00, '2024-01-04'),
+(60, 'Marss', 1, 1.00, '2024-01-04'),
+(61, 'Marss', 1, 1.00, '2024-01-04'),
+(62, 'Ādažu čipsi 100g', 1, 3.00, '2024-01-04');
+
+--
+-- Triggers `pirkumu_vesture`
+--
+DELIMITER $$
+CREATE TRIGGER `after_purchase` AFTER INSERT ON `pirkumu_vesture` FOR EACH ROW BEGIN
+    DECLARE pNosaukums VARCHAR(100);
+    DECLARE pDaudzums INT;
+
+    -- Iegūst produktu nosaukumu un pirkuma daudzumu no ievietotajiem datiem
+    SELECT nosaukums, daudzums INTO pNosaukums, pDaudzums FROM pirkumu_vesture ORDER BY id DESC LIMIT 1;
+
+    -- Pārbauda, vai produkts eksistē tabulā produktu_saraksts
+    IF EXISTS (SELECT 1 FROM produktu_saraksts WHERE nosaukums = pNosaukums) THEN
+        -- Atjauno produktu daudzumu produktu_saraksta tabulā, ja produkts eksistē
+        UPDATE produktu_saraksts SET kop_daudzums = GREATEST(kop_daudzums - pDaudzums, 0) WHERE nosaukums = pNosaukums;
+    END IF;
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `update_nosaukums_trigger` BEFORE INSERT ON `pirkumu_vesture` FOR EACH ROW BEGIN
+    -- Split the content of nosaukums using the "|" delimiter
+    SET NEW.nosaukums = SUBSTRING_INDEX(NEW.nosaukums, '|', 1);
+END
+$$
+DELIMITER ;
+
 -- --------------------------------------------------------
 
 --
@@ -217,7 +312,8 @@ INSERT INTO `produkts` (`produkta_id`, `nosaukums`, `daudzums`, `iepirkuma_cena`
 (12, 'Tērvetes alus', 20, 1.00, 1.50, '2023-11-28', 'Alus', NULL),
 (13, 'Tērvetes alus', 20, 1.00, 1.50, '2023-11-28', 'Alus', '123aba2'),
 (14, 'Ādažu čipsi 100g', 32, 2.00, 3.00, '2023-11-28', '123', '213'),
-(15, 'Iļģuciema kvass', 10, 0.75, 1.00, '2023-11-30', 'Saldināti dzērieni', '12345asd');
+(15, 'Iļģuciema kvass', 10, 0.75, 1.00, '2023-11-30', 'Saldināti dzērieni', '12345asd'),
+(16, 'Rīgas balzāms (upeņu)', 1, 8.00, 9.00, '2023-12-24', 'Alkohols', '123-asv');
 
 --
 -- Triggers `produkts`
@@ -255,19 +351,22 @@ CREATE TABLE `produktu_saraksts` (
   `nosaukums` varchar(100) NOT NULL,
   `kop_daudzums` int(11) DEFAULT NULL,
   `pardosanas_cena` decimal(10,2) DEFAULT NULL,
-  `pedeja_atjauninajuma_datums` datetime DEFAULT NULL
+  `pedeja_atjauninajuma_datums` datetime DEFAULT NULL,
+  `inventarizacijas_datums` date DEFAULT NULL,
+  `paskaidrojums` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `produktu_saraksts`
 --
 
-INSERT INTO `produktu_saraksts` (`nosaukums`, `kop_daudzums`, `pardosanas_cena`, `pedeja_atjauninajuma_datums`) VALUES
-('Ādažu čipsi 100g', 32, 3.00, '2023-11-28 19:25:10'),
-('Iļģuciema kvass', 10, 1.00, '2023-11-29 12:50:42'),
-('Marss', 11, 1.00, '2023-11-24 13:06:04'),
-('Snickers', 12, 1.40, '2023-11-24 13:11:38'),
-('Tērvetes alus', 60, 1.50, '2023-11-28 18:59:29');
+INSERT INTO `produktu_saraksts` (`nosaukums`, `kop_daudzums`, `pardosanas_cena`, `pedeja_atjauninajuma_datums`, `inventarizacijas_datums`, `paskaidrojums`) VALUES
+('Ādažu čipsi 100g', 0, 3.00, '2023-11-28 19:25:10', '2024-01-02', NULL),
+('Iļģuciema kvass', 2, 1.00, '2023-11-29 12:50:42', '2024-01-02', NULL),
+('Marss', 17, 1.00, '2023-11-24 13:06:04', '2024-01-02', NULL),
+('Rīgas balzāms (upeņu)', 1, 9.00, '2023-12-24 17:13:13', '2024-01-02', NULL),
+('Snickers', 1, 1.40, '2023-11-24 13:11:38', '2024-01-02', NULL),
+('Tērvetes alus', 1, 1.50, '2023-11-28 18:59:29', '2024-01-02', NULL);
 
 -- --------------------------------------------------------
 
@@ -336,6 +435,12 @@ ALTER TABLE `naudas_izlietojums`
   ADD KEY `naudas_id` (`naudas_id`);
 
 --
+-- Indexes for table `nesakritibas`
+--
+ALTER TABLE `nesakritibas`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `nopirkta_prece`
 --
 ALTER TABLE `nopirkta_prece`
@@ -380,7 +485,7 @@ ALTER TABLE `tiesibas`
 -- AUTO_INCREMENT for table `inventarizacija`
 --
 ALTER TABLE `inventarizacija`
-  MODIFY `inventarizacijas_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `inventarizacijas_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `nauda`
@@ -401,6 +506,12 @@ ALTER TABLE `naudas_izlietojums`
   MODIFY `izlietojuma_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `nesakritibas`
+--
+ALTER TABLE `nesakritibas`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `nopirkta_prece`
 --
 ALTER TABLE `nopirkta_prece`
@@ -416,13 +527,13 @@ ALTER TABLE `pirkumi`
 -- AUTO_INCREMENT for table `pirkumu_vesture`
 --
 ALTER TABLE `pirkumu_vesture`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=63;
 
 --
 -- AUTO_INCREMENT for table `produkts`
 --
 ALTER TABLE `produkts`
-  MODIFY `produkta_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `produkta_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `tiesibas`
