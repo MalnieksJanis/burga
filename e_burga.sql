@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jan 04, 2024 at 02:41 PM
+-- Generation Time: Jan 06, 2024 at 04:32 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.0.28
 
@@ -21,39 +21,102 @@ SET time_zone = "+00:00";
 -- Database: `e_burga`
 --
 
--- --------------------------------------------------------
-
+DELIMITER $$
 --
--- Table structure for table `alkohola_pirkts`
+-- Procedures
 --
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sagatavot_atskaiti` ()   BEGIN
+    SET NAMES utf8mb4; -- Sets the character set to UTF-8
 
-CREATE TABLE `alkohola_pirkts` (
-  `iegades_id` int(11) DEFAULT NULL,
-  `pircejs` varchar(50) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+    SET @file_path = 'C:/Users/malni/Downloads/sagatavot_atskaiti.csv';
 
--- --------------------------------------------------------
+    -- Calculate date range for the last month
+    SET @start_date = DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01');
+    SET @end_date = LAST_DAY(NOW() - INTERVAL 1 MONTH);
 
---
--- Table structure for table `inventarizacija`
---
+    -- Create temporary table with results
+    CREATE TEMPORARY TABLE temp_produkta_atskaites AS
+    SELECT
+        nosaukums,
+        SUM(daudzums) AS kop_daudzums,
+        AVG(iepirkuma_cena) AS videja_iepirkuma_cena,
+        AVG(pardosanas_cena) AS videja_pardosanas_cena
+    FROM produkts
+    WHERE piegades_datums BETWEEN @start_date AND @end_date
+    GROUP BY nosaukums;
 
-CREATE TABLE `inventarizacija` (
-  `inventarizacijas_id` int(11) NOT NULL,
-  `datums` date DEFAULT NULL,
-  `produkta_id` int(11) DEFAULT NULL,
-  `fiziskais_daudzums` int(11) DEFAULT NULL,
-  `sistematiskais_daudzums` int(11) DEFAULT NULL,
-  `ierakstis` varchar(50) DEFAULT NULL,
-  `inventarizacijas_datums` date NOT NULL DEFAULT curdate()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+    -- Create dynamic SQL query
+    SET @sql_query = CONCAT(
+        'SELECT *
+        FROM temp_produkta_atskaites'
+    );
 
---
--- Dumping data for table `inventarizacija`
---
+    -- Execute dynamic SQL query
+    PREPARE stmt FROM @sql_query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
 
-INSERT INTO `inventarizacija` (`inventarizacijas_id`, `datums`, `produkta_id`, `fiziskais_daudzums`, `sistematiskais_daudzums`, `ierakstis`, `inventarizacijas_datums`) VALUES
-(1, NULL, NULL, NULL, NULL, NULL, '2024-01-02');
+    -- Drop temporary table
+    DROP TEMPORARY TABLE IF EXISTS temp_produkta_atskaites;
+
+    SELECT @file_path AS file_path;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sagatavot_pirkumu_vestures_informaciju` ()   BEGIN
+    SET NAMES utf8mb4;
+    SET @file_path = CONCAT('C:/Users/malni/Downloads/sagatavot_pirkumu_vestures_informaciju.csv');
+
+    -- Izvēlētie lauki no tabulas
+    SET @sql_query = CONCAT("
+        SELECT `id`, `nosaukums`, `daudzums`, `cena`, `datums_pirkts`
+        FROM `pirkumu_vesture`
+    ");
+
+    PREPARE stmt FROM @sql_query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+    
+    SELECT @file_path AS file_path;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sagatavot_sestu_menesu_atskaiti` ()   BEGIN
+    SET NAMES utf8mb4; -- Uzstāda kodējumu uz UTF-8
+
+    SET @file_path = 'C:/Users/malni/Downloads/sagatavot_sestu_menesu_atskaiti.csv';
+
+    -- Aprēķina datumu robežas pēdējiem 6 mēnešiem
+    SET @start_date = DATE_FORMAT(NOW() - INTERVAL 6 MONTH, '%Y-%m-01');
+    SET @end_date = LAST_DAY(NOW());
+
+    -- Izveido pagaidu tabulu ar rezultātiem
+    CREATE TEMPORARY TABLE temp_produkta_atskaites AS
+    SELECT
+        nosaukums,
+        SUM(daudzums) AS kop_daudzums,
+        AVG(iepirkuma_cena) AS videja_iepirkuma_cena,
+        AVG(pardosanas_cena) AS videja_pardosanas_cena
+    FROM produkts
+    WHERE piegades_datums BETWEEN @start_date AND @end_date
+    GROUP BY nosaukums;
+
+    -- Izveido dinamisko SQL vaicājumu
+    SET @sql_query = CONCAT(
+        'SELECT * 
+        FROM temp_produkta_atskaites'
+    );
+
+    -- Izpilda dinamisko SQL vaicājumu
+    PREPARE stmt FROM @sql_query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+
+    -- Dropo pagaidu tabulu
+    DROP TEMPORARY TABLE IF EXISTS temp_produkta_atskaites;
+
+    SELECT @file_path AS file_path;
+END$$
+
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -76,7 +139,7 @@ CREATE TABLE `lietotaji` (
 INSERT INTO `lietotaji` (`lietotajvards`, `parole`, `vards`, `uzvards`, `loma`) VALUES
 ('admin', 'admin_parole', 'Admins', 'Adminovskis', 'administrators'),
 ('dezurfuksis', 'dezurfuksi$', 'Dezur', 'Fuksis', 'lietotajs'),
-('ekanoms', 'ekanoms$', 'Vārds', 'Uzvārds', 'administrators'),
+('ekonoms', 'ekonom$', 'Vārds', 'Uzvārds', 'administrators'),
 ('lietotajs', 'lietotajs_parole', 'Lietotajs', 'Lietotajevskis', 'lietotajs');
 
 -- --------------------------------------------------------
@@ -99,45 +162,16 @@ CREATE TABLE `nauda` (
 --
 
 INSERT INTO `nauda` (`naudas_id`, `nosaukums`, `monetas_daudzums`, `vertiba`, `inventarizacijas_datums`, `paskaidrojums`) VALUES
-(1, 'Cents', 43, 0.01, '2024-01-02', NULL),
-(2, 'Divi centi', 2, 0.02, '2024-01-02', NULL),
-(3, 'Pieci centi', 1, 0.05, '2024-01-02', NULL),
-(4, 'Desmit centi', 2, 0.10, '2024-01-02', NULL),
-(5, 'Divdesmit centi', 2, 0.00, '2024-01-02', NULL),
-(6, 'Piecdesmit centi', 3, 0.00, '2024-01-02', NULL),
-(7, 'Eiro', 43, 1.00, '2024-01-02', NULL),
-(8, 'Divi eiro', 2, 2.00, '2024-01-02', NULL),
-(9, 'Pieci eiro', 2, 5.00, '2024-01-02', NULL),
-(10, 'Desmit eiro', 1, 10.00, '2024-01-02', NULL);
-
--- --------------------------------------------------------
-
---
--- Table structure for table `naudas_inventarizacija`
---
-
-CREATE TABLE `naudas_inventarizacija` (
-  `inventarizacijas_id` int(11) NOT NULL,
-  `datums` date DEFAULT NULL,
-  `naudas_id` int(11) DEFAULT NULL,
-  `fiziska_summa` decimal(10,2) DEFAULT NULL,
-  `sistematiska_summa` decimal(10,2) DEFAULT NULL,
-  `ierakstis` varchar(50) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `naudas_izlietojums`
---
-
-CREATE TABLE `naudas_izlietojums` (
-  `izlietojuma_id` int(11) NOT NULL,
-  `naudas_id` int(11) DEFAULT NULL,
-  `lietotajs` varchar(50) DEFAULT NULL,
-  `summa` decimal(10,2) DEFAULT NULL,
-  `datums_izlietots` date DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+(1, 'Cents', 10, 0.01, '2024-01-04', NULL),
+(2, 'Divi centi', 10, 0.02, '2024-01-04', NULL),
+(3, 'Pieci centi', 10, 0.05, '2024-01-04', NULL),
+(4, 'Desmit centi', 10, 0.10, '2024-01-04', NULL),
+(5, 'Divdesmit centi', 10, 0.00, '2024-01-04', NULL),
+(6, 'Piecdesmit centi', 10, 0.00, '2024-01-04', NULL),
+(7, 'Eiro', 10, 1.00, '2024-01-04', NULL),
+(8, 'Divi eiro', 10, 2.00, '2024-01-04', NULL),
+(9, 'Pieci eiro', 10, 5.00, '2024-01-04', NULL),
+(10, 'Desmit eiro', 10, 10.00, '2024-01-04', NULL);
 
 -- --------------------------------------------------------
 
@@ -151,22 +185,6 @@ CREATE TABLE `nesakritibas` (
   `realais_daudzums` int(11) NOT NULL,
   `ievaditais_daudzums` int(11) NOT NULL,
   `ievades_laiks` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `nopirkta_prece`
---
-
-CREATE TABLE `nopirkta_prece` (
-  `iegades_id` int(11) NOT NULL,
-  `produkta_id` int(11) DEFAULT NULL,
-  `daudzums` int(11) DEFAULT NULL,
-  `cena` decimal(10,2) DEFAULT NULL,
-  `datums_pirkts` date DEFAULT NULL,
-  `pircejs` varchar(50) DEFAULT NULL,
-  `Nosaukums` varchar(200) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -248,7 +266,12 @@ INSERT INTO `pirkumu_vesture` (`id`, `nosaukums`, `daudzums`, `cena`, `datums_pi
 (59, 'Marss', 1, 1.00, '2024-01-04'),
 (60, 'Marss', 1, 1.00, '2024-01-04'),
 (61, 'Marss', 1, 1.00, '2024-01-04'),
-(62, 'Ādažu čipsi 100g', 1, 3.00, '2024-01-04');
+(62, 'Ādažu čipsi 100g', 1, 3.00, '2024-01-04'),
+(63, 'Iļģuciema kvass', 1, 1.00, '2024-01-04'),
+(64, 'Marss', 1, 1.00, '2024-01-04'),
+(65, 'Ādažu čipsi 100g', 1, 3.00, '2024-01-04'),
+(66, 'Marss', 1, 1.00, '2024-01-04'),
+(67, 'Marss', 2, 1.00, '2024-01-04');
 
 --
 -- Triggers `pirkumu_vesture`
@@ -292,7 +315,7 @@ CREATE TABLE `produkts` (
   `piegades_datums` date DEFAULT NULL,
   `kategorija` varchar(50) DEFAULT NULL,
   `ceka_nr` varchar(50) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 --
 -- Dumping data for table `produkts`
@@ -313,7 +336,8 @@ INSERT INTO `produkts` (`produkta_id`, `nosaukums`, `daudzums`, `iepirkuma_cena`
 (13, 'Tērvetes alus', 20, 1.00, 1.50, '2023-11-28', 'Alus', '123aba2'),
 (14, 'Ādažu čipsi 100g', 32, 2.00, 3.00, '2023-11-28', '123', '213'),
 (15, 'Iļģuciema kvass', 10, 0.75, 1.00, '2023-11-30', 'Saldināti dzērieni', '12345asd'),
-(16, 'Rīgas balzāms (upeņu)', 1, 8.00, 9.00, '2023-12-24', 'Alkohols', '123-asv');
+(16, 'Rīgas balzāms (upeņu)', 1, 8.00, 9.00, '2023-12-24', 'Alkohols', '123-asv'),
+(17, 'Bauskas gaišais', 20, 0.00, 1.00, '2024-04-01', 'Alus', 'ssdwdwq');
 
 --
 -- Triggers `produkts`
@@ -361,52 +385,17 @@ CREATE TABLE `produktu_saraksts` (
 --
 
 INSERT INTO `produktu_saraksts` (`nosaukums`, `kop_daudzums`, `pardosanas_cena`, `pedeja_atjauninajuma_datums`, `inventarizacijas_datums`, `paskaidrojums`) VALUES
-('Ādažu čipsi 100g', 0, 3.00, '2023-11-28 19:25:10', '2024-01-02', NULL),
-('Iļģuciema kvass', 2, 1.00, '2023-11-29 12:50:42', '2024-01-02', NULL),
-('Marss', 17, 1.00, '2023-11-24 13:06:04', '2024-01-02', NULL),
-('Rīgas balzāms (upeņu)', 1, 9.00, '2023-12-24 17:13:13', '2024-01-02', NULL),
-('Snickers', 1, 1.40, '2023-11-24 13:11:38', '2024-01-02', NULL),
-('Tērvetes alus', 1, 1.50, '2023-11-28 18:59:29', '2024-01-02', NULL);
-
--- --------------------------------------------------------
-
---
--- Table structure for table `tiesibas`
---
-
-CREATE TABLE `tiesibas` (
-  `id` int(11) NOT NULL,
-  `lietotajvards` varchar(50) DEFAULT NULL,
-  `tabula` varchar(50) DEFAULT NULL,
-  `lasisanas_tiesibas` tinyint(1) DEFAULT NULL,
-  `rakstisanas_tiesibas` tinyint(1) DEFAULT NULL,
-  `dzesanas_tiesibas` tinyint(1) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `tiesibas`
---
-
-INSERT INTO `tiesibas` (`id`, `lietotajvards`, `tabula`, `lasisanas_tiesibas`, `rakstisanas_tiesibas`, `dzesanas_tiesibas`) VALUES
-(1, 'admin', 'tabula1', 1, 1, 1),
-(2, 'lietotajs', 'tabula2', 1, 0, 0);
+('Ādažu čipsi 100g', 0, 3.00, '2023-11-28 19:25:10', '2024-01-04', NULL),
+('Bauskas gaišais', 20, 1.00, '2024-01-04 21:22:21', NULL, NULL),
+('Iļģuciema kvass', 1, 1.00, '2023-11-29 12:50:42', '2024-01-04', NULL),
+('Marss', 14, 1.00, '2023-11-24 13:06:04', '2024-01-04', NULL),
+('Rīgas balzāms (upeņu)', 1, 9.00, '2023-12-24 17:13:13', '2024-01-04', NULL),
+('Snickers', 1, 1.40, '2023-11-24 13:11:38', '2024-01-04', NULL),
+('Tērvetes alus', 1, 1.50, '2023-11-28 18:59:29', '2024-01-04', NULL);
 
 --
 -- Indexes for dumped tables
 --
-
---
--- Indexes for table `alkohola_pirkts`
---
-ALTER TABLE `alkohola_pirkts`
-  ADD KEY `iegades_id` (`iegades_id`);
-
---
--- Indexes for table `inventarizacija`
---
-ALTER TABLE `inventarizacija`
-  ADD PRIMARY KEY (`inventarizacijas_id`),
-  ADD KEY `produkta_id` (`produkta_id`);
 
 --
 -- Indexes for table `lietotaji`
@@ -421,30 +410,10 @@ ALTER TABLE `nauda`
   ADD PRIMARY KEY (`naudas_id`);
 
 --
--- Indexes for table `naudas_inventarizacija`
---
-ALTER TABLE `naudas_inventarizacija`
-  ADD PRIMARY KEY (`inventarizacijas_id`),
-  ADD KEY `naudas_id` (`naudas_id`);
-
---
--- Indexes for table `naudas_izlietojums`
---
-ALTER TABLE `naudas_izlietojums`
-  ADD PRIMARY KEY (`izlietojuma_id`),
-  ADD KEY `naudas_id` (`naudas_id`);
-
---
 -- Indexes for table `nesakritibas`
 --
 ALTER TABLE `nesakritibas`
   ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `nopirkta_prece`
---
-ALTER TABLE `nopirkta_prece`
-  ADD PRIMARY KEY (`iegades_id`);
 
 --
 -- Indexes for table `pirkumi`
@@ -471,21 +440,8 @@ ALTER TABLE `produktu_saraksts`
   ADD PRIMARY KEY (`nosaukums`);
 
 --
--- Indexes for table `tiesibas`
---
-ALTER TABLE `tiesibas`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `lietotajvards` (`lietotajvards`);
-
---
 -- AUTO_INCREMENT for dumped tables
 --
-
---
--- AUTO_INCREMENT for table `inventarizacija`
---
-ALTER TABLE `inventarizacija`
-  MODIFY `inventarizacijas_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `nauda`
@@ -494,28 +450,10 @@ ALTER TABLE `nauda`
   MODIFY `naudas_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
--- AUTO_INCREMENT for table `naudas_inventarizacija`
---
-ALTER TABLE `naudas_inventarizacija`
-  MODIFY `inventarizacijas_id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `naudas_izlietojums`
---
-ALTER TABLE `naudas_izlietojums`
-  MODIFY `izlietojuma_id` int(11) NOT NULL AUTO_INCREMENT;
-
---
 -- AUTO_INCREMENT for table `nesakritibas`
 --
 ALTER TABLE `nesakritibas`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `nopirkta_prece`
---
-ALTER TABLE `nopirkta_prece`
-  MODIFY `iegades_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `pirkumi`
@@ -527,59 +465,13 @@ ALTER TABLE `pirkumi`
 -- AUTO_INCREMENT for table `pirkumu_vesture`
 --
 ALTER TABLE `pirkumu_vesture`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=63;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=68;
 
 --
 -- AUTO_INCREMENT for table `produkts`
 --
 ALTER TABLE `produkts`
-  MODIFY `produkta_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
-
---
--- AUTO_INCREMENT for table `tiesibas`
---
-ALTER TABLE `tiesibas`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
--- Constraints for dumped tables
---
-
---
--- Constraints for table `alkohola_pirkts`
---
-ALTER TABLE `alkohola_pirkts`
-  ADD CONSTRAINT `alkohola_pirkts_ibfk_1` FOREIGN KEY (`iegades_id`) REFERENCES `nopirkta_prece` (`iegades_id`);
-
---
--- Constraints for table `inventarizacija`
---
-ALTER TABLE `inventarizacija`
-  ADD CONSTRAINT `inventarizacija_ibfk_1` FOREIGN KEY (`produkta_id`) REFERENCES `produkts` (`produkta_id`);
-
---
--- Constraints for table `naudas_inventarizacija`
---
-ALTER TABLE `naudas_inventarizacija`
-  ADD CONSTRAINT `naudas_inventarizacija_ibfk_1` FOREIGN KEY (`naudas_id`) REFERENCES `nauda` (`naudas_id`);
-
---
--- Constraints for table `naudas_izlietojums`
---
-ALTER TABLE `naudas_izlietojums`
-  ADD CONSTRAINT `naudas_izlietojums_ibfk_1` FOREIGN KEY (`naudas_id`) REFERENCES `nauda` (`naudas_id`);
-
---
--- Constraints for table `nopirkta_prece`
---
-ALTER TABLE `nopirkta_prece`
-  ADD CONSTRAINT `nopirkta_prece_ibfk_1` FOREIGN KEY (`produkta_id`) REFERENCES `produkts` (`produkta_id`);
-
---
--- Constraints for table `tiesibas`
---
-ALTER TABLE `tiesibas`
-  ADD CONSTRAINT `tiesibas_ibfk_1` FOREIGN KEY (`lietotajvards`) REFERENCES `lietotaji` (`lietotajvards`);
+  MODIFY `produkta_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
