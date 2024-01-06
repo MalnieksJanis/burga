@@ -25,55 +25,65 @@ while ($rowProduktiSaraksts = $resultProduktiSaraksts->fetch_assoc()) {
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <title>Pircejs</title>
     <script>
-        var produktuNosaukumi = <?php echo json_encode($produktuNosaukumi); ?>;
-        
-        document.addEventListener("DOMContentLoaded", function() {
-            var dropdown = document.querySelector("select[name='nosaukums']");
+    var produktuNosaukumi = <?php echo json_encode($produktuNosaukumi); ?>;
+    
+    document.addEventListener("DOMContentLoaded", function() {
+    var dropdown = document.querySelector("select[name='nosaukums']");
+    dropdown.innerHTML = "";
+    dropdown.options.add(new Option('Izvēlies produktu', ''));
+
+    // Aizpildīt dropdown ar produktu nosaukumiem
+    aizpilditProduktuNosaukumuDropdown(dropdown, produktuNosaukumi);
+
+    dropdown.onchange = function () {
+        updateCena(this);
+    };
+
+    // Pievienot precei groza funkcionalitāti
+    document.getElementById('pirkt').onclick = function (event) {
+        event.preventDefault();
+        pirkt();
+    };
+
+    document.getElementById('pievienotGrozam').onclick = function () {
+        pievienotPreci();
+    };
+});
+    function aizpilditProduktuNosaukumuDropdown(dropdown, nosaukumi) {
+        if (dropdown) {
             dropdown.innerHTML = "";
             dropdown.options.add(new Option('Izvēlies produktu', ''));
-            aizpilditProduktuNosaukumuDropdown(dropdown, produktuNosaukumi);
             
+            for (var i = 0; i < nosaukumi.length; i++) {
+                dropdown.options.add(new Option(nosaukumi[i].nosaukums, nosaukumi[i].nosaukums + '|' + nosaukumi[i].kop_daudzums + '|' + nosaukumi[i].pardosanas_cena));
+            }
+
             dropdown.onchange = function () {
                 updateCena(this);
             };
-
-            pievienotPreci();
-        });
-
-        function aizpilditProduktuNosaukumuDropdown(dropdown, nosaukumi) {
-            if (dropdown) {
-                dropdown.innerHTML = "";
-                dropdown.options.add(new Option('Izvēlies produktu', ''));
-                
-                for (var i = 0; i < nosaukumi.length; i++) {
-                    dropdown.options.add(new Option(nosaukumi[i].nosaukums, nosaukumi[i].nosaukums + '|' + nosaukumi[i].kop_daudzums + '|' + nosaukumi[i].pardosanas_cena));
-                }
-
-                dropdown.onchange = function () {
-                    updateCena(this);
-                };
-                updateCena(dropdown);
-            }
+            updateCena(dropdown);
         }
+    }
 
-        function updateCena(dropdown) {
-            var selectedOption = dropdown.options[dropdown.selectedIndex].value.split('|');
-            document.getElementById('cena').value = selectedOption[2];
-        }
+    function updateCena(dropdown) {
+        var selectedOption = dropdown.options[dropdown.selectedIndex].value.split('|');
+        document.getElementById('cena').value = selectedOption[2];
+    }
 
-        function pievienotPreci() {
+    function pievienotPreci() {
         var dropdown = document.getElementById('nosaukums');
         var nosaukums = dropdown.options[dropdown.selectedIndex].value;
-        
+
         // Check if a product is selected before proceeding
         if (!nosaukums) {
+            alert("Lūdzu, izvēlieties produktu pirms pievienošanas grozam.");
             return; // Do nothing if no product is selected
         }
 
         var daudzums = parseInt(document.getElementById('daudzums').value);
         var cena = parseFloat(document.getElementById('cena').value);
 
-        if (daudzums <= 0) {
+        if (daudzums <= 0 || isNaN(daudzums)) {
             alert("Norādiet derīgu daudzumu.");
             return;
         }
@@ -103,42 +113,40 @@ while ($rowProduktiSaraksts = $resultProduktiSaraksts->fetch_assoc()) {
         document.getElementById('summa').innerText = "Kopsumma: " + aprēķinātKopsummu();
     }
 
-function aprēķinātKopsummu() {
-    var summa = 0;
-    var ieteikumi = document.getElementById('ieteikumi').getElementsByClassName('list-group-item');
-    
-    for (var i = 0; i < ieteikumi.length; i++) {
-        var precesInfo = ieteikumi[i].innerText.split('-');
-        var cena = parseFloat(precesInfo[2]);
-        var daudzums = parseFloat(precesInfo[1].split('g')[0].trim());
+    function aprēķinātKopsummu() {
+        var summa = 0;
+        var ieteikumi = document.getElementById('ieteikumi').getElementsByClassName('list-group-item');
         
-        summa += cena * daudzums;
-    }
-    
-    return summa.toFixed(2);
-}
-
-        function dzestPreci(button) {
-            button.parentNode.remove();
-            document.getElementById('summa').innerText = "Summa: " + aprēķinātKopsummu();
+        for (var i = 0; i < ieteikumi.length; i++) {
+            var precesInfo = ieteikumi[i].innerText.split('-');
+            var cena = parseFloat(precesInfo[2]);
+            var daudzums = parseFloat(precesInfo[1].split('Gab.')[0].trim());
             
+            summa += cena * daudzums;
         }
+        
+        return summa.toFixed(2);
+    }
 
-        function iztuksoGrozu() {
-    var ieteikumi = document.getElementById('ieteikumi');
-    ieteikumi.innerHTML = "";
-    document.getElementById('summa').innerText = "Summa: 0.00";
-    
+    function dzestPreci(button) {
+        button.parentNode.remove();
+        document.getElementById('summa').innerText = "Summa: " + aprēķinātKopsummu();
+    }
 
-    // Slēpt groza un summas divu
-    ieteikumi.style.display = 'none';
-    document.getElementById('summa').style.display = 'none';
+    function iztuksoGrozu() {
+        var ieteikumi = document.getElementById('ieteikumi');
+        ieteikumi.innerHTML = "";
+        document.getElementById('summa').innerText = "Summa: 0.00";
+        
+        // Slēpt groza un summas divu
+        ieteikumi.style.display = 'none';
+        document.getElementById('summa').style.display = 'none';
 
-    // Parādīt paziņojumu
-    alert("Paldies par pirkumu!");
-}
-function pirkt(event) {
-    event.preventDefault();
+        // Parādīt paziņojumu
+        alert("Paldies par pirkumu!");
+    }
+
+    function pirkt() {
     // Collect data from the shopping cart
     var ieteikumi = document.getElementById('ieteikumi').getElementsByClassName('list-group-item');
     var pirkumaData = [];
@@ -158,58 +166,65 @@ function pirkt(event) {
         });
     }
 
+    if (pirkumaData.length === 0) {
+        alert("Lūdzu, izvēlieties produktu pirms pirkšanas.");
+        return; // Ja nav izvēlētu produktu, paziņojums tiek parādīts un funkcija tiek beigta
+    }
+
     // Send an AJAX request to a PHP script to handle the purchase
     var xhr = new XMLHttpRequest();
     xhr.open('POST', 'saglabat_pirkumu.php', true);
     xhr.setRequestHeader('Content-Type', 'application/json');
 
     xhr.onload = function () {
-    if (xhr.status === 200) {
-        // On successful purchase, fetch and update the product list
-        updateProductList();
+        if (xhr.status === 200) {
+            // On successful purchase, fetch and update the product list
+            updateProductList();
 
-        // Clear the shopping cart
-        document.getElementById('ieteikumi').innerHTML = '';
-        document.getElementById('summa').innerText = 'Summa: 0.00';
+            // Clear the shopping cart
+            document.getElementById('ieteikumi').innerHTML = '';
+            document.getElementById('summa').innerText = 'Summa: 0.00';
 
-        // Show a thank you message or redirect the user
-        alert('Paldies par pirkumu!');
-    } else {
-        // Handle error
-        console.error('Purchase failed. Status: ' + xhr.status);
-    }
-};
+            // Show a thank you message or redirect the user
+            alert('Paldies par pirkumu!');
+        } else {
+            // Handle error
+            console.error('Purchase failed. Status: ' + xhr.status);
+        }
+    };
 
     xhr.send(JSON.stringify(pirkumaData));
 }
 
-function updateProductList() {
-    // Fetch updated product list from the server using AJAX
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', 'get_updated_product_list.php', true);
+    function updateProductList() {
+        // Fetch updated product list from the server using AJAX
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', 'get_updated_product_list.php', true);
 
-    xhr.onload = function () {
-        if (xhr.status === 200) {
-            // Update the product list container with the new content
-            var productListContainer = document.getElementById('productListContainer');
-            productListContainer.innerHTML = xhr.responseText;
-        } else {
-            // Handle error
-            console.error('Failed to fetch updated product list. Status: ' + xhr.status);
-        }
-    };
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                // Update the product list container with the new content
+                var productListContainer = document.getElementById('productListContainer');
+                productListContainer.innerHTML = xhr.responseText;
+            } else {
+                // Handle error
+                console.error('Failed to fetch updated product list. Status: ' + xhr.status);
+            }
+        };
 
-    xhr.send();
-}
-    </script>
+        xhr.send();
+    }
+</script>
+
 </head>
 <body class="min-vh-100 d-flex flex-column">
     <?php include 'navigation_default.php'; ?>
+    <h1  class="mt-5 mb-4 text-center">Preču iegādāšanās</h1>
     <div class="container-fluid mt-5">
         <div class="row">
             <!-- Kataloga kolonna (kreisajā pusē) -->
             <div class="col-md-4">
-            <h2 class="text-center">Produkti</h2>
+            <h2 class="text-center">Produktu klāsts</h2>
             
             <table class="table">
                 <thead>
@@ -237,7 +252,7 @@ function updateProductList() {
             
             <!-- Jaunu preču pievienošanas kolonna (labajā pusē) -->
 <div class="col-md-8">
-    <h2 class="text-center">Pirkuma forma</h2>
+    <h2 class="text-center">Pirkuma grozs</h2>
     <div id="ieteikumi" class="list-group">
         <!-- Šeit tiks pievienoti produkti -->
     </div>
@@ -259,10 +274,11 @@ function updateProductList() {
                 <input type="text" class="form-control" id="cena" name="cena" placeholder="Cena" readonly>
             </div>
         </div>
-        <button type="button" class="btn btn-primary" onclick="pievienotPreci()">Pievienot grozam</button>
+        <button type="button" class="btn btn-primary" onclick="pievienotPreci()">Pievienot grozam </button>
     </form> 
-    
-    <div id="summa" class="mt-3" style="display: none;">Summa: 0.00</div>
+    <div class="mb-4"></div>
+    <div id="summa" class="mt-4 font-weight-bold text-danger" style="display: none;">Summa: 0.00 </div>
+    <div class="mb-4"></div>
     <button type="button" class="btn btn-success" onclick="pirkt(event)">PIRKT</button>
    
 </div>

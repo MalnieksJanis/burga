@@ -30,7 +30,7 @@ $role = $_SESSION['role'];
     <div class="container mt-auto">
         <div class="row d-flex align-items-center">
             <div class="col-md-6 offset-md-3 text-center">
-                <p>Tev ir pieeja administratora funkcijām.</p>
+                <p>Tev ir pieeja EKONOMA funkcijām.</p>
             </div>
         </div>
     </div>
