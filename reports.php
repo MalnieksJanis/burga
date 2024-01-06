@@ -8,9 +8,6 @@ if (!isset($_SESSION['username'])) {
     exit();
 }
 
-// Iegūstam informāciju par lietotāju no sesijas
-$username = $_SESSION['username'];
-$role = $_SESSION['role'];
 ?>
 <!DOCTYPE html>
 <html lang="lv">
@@ -19,86 +16,110 @@ $role = $_SESSION['role'];
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>E-BURGA ADMINISTRAORA FUNKCIJAS</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 </head>
 
 <body class="min-vh-100 d-flex flex-column">
 
-    <!-- Navigācijas izvēlne -->
+    <!-- Navigation menu -->
     <?php include 'navigation.php'; ?>
 
     <div class="container mt-3">
-        <!-- Forma ar atskaitēm -->
+        <!-- Reports form -->
         <h1>Atskaites</h1>
 
-        <div class="container mt-3">
-    <!-- Forma ar atskaitēm -->
-    <h1>Atskaites</h1>
-
-    <!-- Pogas un to paskaidrojumi -->
-    <div class="row mt-4">
-        <!-- Poga 1 -->
-        <div class="col-md-3">
-            <div class="card">
-                <div class="card-body">
-                    <h3>Atskaite par pēdējo mēnesi</h3>
-                    <p>Paskaidrojums par to, ko poga darīs.</p>
-                    <form action="generate_excel.php" method="post">
-                        <input type="hidden" name="report_type" value="report1">
-                        <button type="submit" class="btn btn-primary">Lejupielādēt XLSX</button>
-                    </form>
+        <!-- Buttons and their descriptions -->
+        <div class="row mt-4">
+            <!-- Button 1 -->
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h3>Atskaite par pēdējā mēnesi pievienotajām precēm burgā</h3>
+                        <p>Paskaidrojums par to, ko poga darīs.</p>
+                        <button type="button" id="report1" class="btn btn-primary">Lejupielādēt csv</button>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Poga 2 -->
-        <div class="col-md-3">
-            <div class="card">
-                <div class="card-body">
-                    <h3>Atskaite par pēdējiem 6 mēnešiem</h3>
-                    <p>sdgthsdfs</p>
-                    <form action="generate_excel.php" method="post">
-                        <input type="hidden" name="report_type" value="report2">
-                        <button type="submit" class="btn btn-primary">Lejupielādēt XLSX</button>
-                    </form>
+            <!-- Button 2 -->
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h3>Atskaite par pēdējo sešu mēnešu laikā pievienotajām precēm</h3>
+                        <p>sdgthsdfs</p>
+                        <button type="button" id="report2" class="btn btn-primary">Lejupielādēt csv</button>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Poga 3 -->
-        <div class="col-md-3">
-            <div class="card">
-                <div class="card-body">
-                    <h3>Atskaite par pirktajām precēm no veikala</h3>
-                    <p>sdafgergwe</p>
-                    <form action="generate_excel.php" method="post">
-                        <input type="hidden" name="report_type" value="report3">
-                        <button type="submit" class="btn btn-primary">Lejupielādēt XLSX</button>
-                    </form>
+            <!-- Button 3 -->
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h3>Atskaite par pirktajām precēm Burgā</h3>
+                        <p>sdafgergwe</p>
+                        <button type="button" id="report3" class="btn btn-primary">Lejupielādēt csv</button>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Poga 4 -->
-        <div class="col-md-3">
-            <div class="card">
-                <div class="card-body">
-                    <h3>Atskaite par kopējiem ieņēmumiem.</h3>
-                    <p>Atskaite, kas salīdzina iepirkuma cenu pret pārdoto.</p>
-                    <form action="generate_excel.php" method="post">
-                        <input type="hidden" name="report_type" value="report4">
-                        <button type="submit" class="btn btn-primary">Lejupielādēt XLSX</button>
-                    </form>
+            <!-- Button 4 -->
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h3>Atskaite par kopējiem ieņēmumiem.</h3>
+                        <p>Atskaite, kas salīdzina iepirkuma cenu pret pārdoto.</p>
+                        <button type="button" id="report4" class="btn btn-primary">Lejupielādēt csv</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
+    <!-- JavaScript links -->
 
-    </div>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <!-- Your JavaScript code -->
+    <script>
+        $(document).ready(function () {
+            $("#report1").click(function () {
+                invokeProcedure("report1");
+            });
 
-    <!-- JavaScript saites -->
+            $("#report2").click(function () {
+                invokeProcedure("report2");
+            });
+
+            $("#report3").click(function () {
+                invokeProcedure("report3");
+            });
+
+            $("#report4").click(function () {
+                invokeProcedure("report4");
+            });
+
+            function invokeProcedure(reportType) {
+                $.ajax({
+                    url: "generate_report.php",
+                    method: "POST",
+                    data: { report_type: reportType },
+                    success: function (response) {
+                        console.log(response);
+                        downloadFile(reportType);
+                    },
+                    error: function (error) {
+                        console.error(error);
+                    }
+                });
+            }
+
+            function downloadFile(reportType) {
+                window.location.href = 'generate_report.php?report_type=' + reportType;
+            }
+        });
+    </script>
 </body>
 <?php include 'footer.php'; ?>
+
 </html>
