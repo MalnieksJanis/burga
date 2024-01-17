@@ -21,7 +21,7 @@ session_start();
     <div class="container mt-auto">
         <div class="row d-flex align-items-center">
             <div class="col-md-6 offset-md-3 text-center">
-                <p>Preču reģistrēšana</p>
+                <h1>Preču reģistrēšana</h1>
                    <!-- Izvada paziņojumus, ja ir kādi -->
                    <?php
                 if (isset($_SESSION['message'])) {

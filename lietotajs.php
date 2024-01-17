@@ -11,6 +11,8 @@ if (!isset($_SESSION['username'])) {
 // Iegūstam informāciju par lietotāju no sesijas
 $username = $_SESSION['username'];
 $role = $_SESSION['role'];
+echo 'Lietotāja ID: ' . $_SESSION['username'] . '<br>';
+    echo 'Loma: ' . $_SESSION['role'];
 ?>
 
 <!DOCTYPE html>

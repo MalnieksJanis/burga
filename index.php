@@ -18,7 +18,7 @@
                 <h2 class="display-1 mb-4">BURGA</h2>
                 <div class="mt-4">
                     <a href="buyer.php" class="btn btn-primary btn-lg mr-3">Pirkt</a>
-                    <a href="login.php" class="btn btn-success btn-lg">Ielagoties</a>
+                    <a href="login.php" class="btn btn-success btn-lg">Ielogoties</a>
                 </div>
             </div>
         </div>

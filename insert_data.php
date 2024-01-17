@@ -1,14 +1,7 @@
 <?php
 include 'includes/db.php';
 $db = DB::getInstance()->getConnection();
-session_start();
 
-// Pārbaudīt, vai lietotājs ir ielgojies
-if (!isset($_SESSION['username'])) {
-    // Ja nav ielogošanās, novirzīt uz ielogošanās lapu vai veikt citus pasākumus
-    header("Location: login.php");
-    exit();
-}
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Check which form was submitted

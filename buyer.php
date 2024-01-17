@@ -280,7 +280,11 @@ while ($rowProduktiSaraksts = $resultProduktiSaraksts->fetch_assoc()) {
     <div id="summa" class="mt-4 font-weight-bold text-danger" style="display: none;">Summa: 0.00 </div>
     <div class="mb-4"></div>
     <button type="button" class="btn btn-success" onclick="pirkt(event)">PIRKT</button>
-   
+    <div class="mt-3 text-danger" style="font-weight: bold;">
+                    Pēc pogas "PIRKT" nospiešanas, summa, kas izceltiem sarkaniem burtiem, tiek ielikta burgas kasē.
+                    Preces tiek paņemtas tādā daudzumā, kādā tās tiek ieliktas pirkuma grozā. Nesakritību gadījumā vai negotprātīgas
+                    rīcības gadījumā var tikt un tiks izskatīti video ieraksti, lai atrastu negodprātīgo personu.
+                </div>
 </div>
 
         </div>

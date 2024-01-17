@@ -36,8 +36,8 @@ if (!isset($_SESSION['username'])) {
                 <div class="card">
                     <div class="card-body">
                         <h3>Atskaite par pēdējā mēnesi pievienotajām precēm burgā</h3>
-                        <p>Paskaidrojums par to, ko poga darīs.</p>
-                        <button type="button" id="report1" class="btn btn-primary">Lejupielādēt csv</button>
+                        <p>Paskaidrojošs teksts</p>
+                        <button type="button" id="report1" class="btn btn-primary">Lejupielādēt</button>
                     </div>
                 </div>
             </div>
@@ -47,8 +47,8 @@ if (!isset($_SESSION['username'])) {
                 <div class="card">
                     <div class="card-body">
                         <h3>Atskaite par pēdējo sešu mēnešu laikā pievienotajām precēm</h3>
-                        <p>sdgthsdfs</p>
-                        <button type="button" id="report2" class="btn btn-primary">Lejupielādēt csv</button>
+                        <p>Paskaidrojošs teksts</p>
+                        <button type="button" id="report2" class="btn btn-primary">Lejupielādēt</button>
                     </div>
                 </div>
             </div>
@@ -58,8 +58,8 @@ if (!isset($_SESSION['username'])) {
                 <div class="card">
                     <div class="card-body">
                         <h3>Atskaite par pirktajām precēm Burgā</h3>
-                        <p>sdafgergwe</p>
-                        <button type="button" id="report3" class="btn btn-primary">Lejupielādēt csv</button>
+                        <p>Paskaidrojošs teksts</p>
+                        <button type="button" id="report3" class="btn btn-primary">Lejupielādēt</button>
                     </div>
                 </div>
             </div>
@@ -68,9 +68,9 @@ if (!isset($_SESSION['username'])) {
             <div class="col-md-3">
                 <div class="card">
                     <div class="card-body">
-                        <h3>Atskaite par kopējiem ieņēmumiem.</h3>
-                        <p>Atskaite, kas salīdzina iepirkuma cenu pret pārdoto.</p>
-                        <button type="button" id="report4" class="btn btn-primary">Lejupielādēt csv</button>
+                        <h3>Atskaite par kopējiem ieņēmumiem</h3>
+                        <p>Paskaidrojošs teksts</p>
+                        <button type="button" id="report4" class="btn btn-primary">Lejupielādēt</button>
                     </div>
                 </div>
             </div>

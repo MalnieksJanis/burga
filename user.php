@@ -18,7 +18,7 @@ include 'includes/session.php';
     <div class="row">
         <div class="col-md-6 offset-md-3">
             <h2 class="text-center">Sveiki, <?php echo $_SESSION['username']; ?>!</h2>
-            <p>Tev ir pieeja lietotāja funkcijām.</p>
+            <p>Tev ir pieeja DEŽURFUKŠA funkcijām.</p>
             <a href="logout.php" class="btn btn-danger btn-block">Iziet</a>
         </div>
     </div>

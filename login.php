@@ -75,7 +75,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <div class="container mt-5">
     <div class="row">
         <div class="col-md-6 offset-md-3">
-            <h2 class="text-center">Ielagties</h2>
+            <h2 class="text-center">Ielogoties</h2>
             <?php
             if (isset($error_message)) {
                 echo '<div class="alert alert-danger" role="alert">' . $error_message . '</div>';
@@ -90,7 +90,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <label for="password">Parole:</label>
                     <input type="password" class="form-control" id="password" name="password" required>
                 </div>
-                <button type="submit" class="btn btn-primary btn-block">Ielagties</button>
+                <button type="submit" class="btn btn-primary btn-block">Ielogoties</button>
                 <button type="submit" class="btn btn-danger btn-block" onclick="redirectToIndex()">Iziet</button>
                 
             </form>

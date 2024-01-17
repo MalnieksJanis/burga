@@ -1,5 +1,12 @@
 <?php
+session_start();
 
+// Pārbaudīt, vai lietotājs ir ielgojies
+if (!isset($_SESSION['username'])) {
+    // Ja nav ielogošanās, novirzīt uz ielogošanās lapu vai veikt citus pasākumus
+    header("Location: login.php");
+    exit();
+}
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
@@ -36,13 +43,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $db = DB::getInstance()->getConnection();
 
     // Iegūt pirkuma datus no POST pieprasījuma
-    $pirkumaDati = $_POST['pirkumaDati'];
+    $pirkumaDati = json_decode(file_get_contents("php://input"));
 
     // Saglabāt katru produktu datu bāzē
     foreach ($pirkumaDati as $pirkums) {
-        $nosaukums = $db->real_escape_string($pirkums['nosaukums']);
-        $daudzums = $pirkums['daudzums'];
-        $cena = $pirkums['cena'];
+        $nosaukums = $db->real_escape_string($pirkums->nosaukums);
+        $daudzums = $pirkums->daudzums;
+        $cena =$pirkums->cena;
         $datums = date('Y-m-d');
 
         $query = "INSERT INTO pirkumu_vesture (nosaukums, daudzums, cena, datums_pirkts) VALUES ('$nosaukums', $daudzums, $cena, '$datums')";

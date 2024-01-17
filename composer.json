@@ -1,0 +1,17 @@
+{
+    "name": "malni/eburga",
+    "autoload": {
+        "psr-4": {
+            "Malni\\Eburga\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "janis malnieks"
+        }
+    ],
+    "require": {
+        "phpoffice/phpspreadsheet": "^1.20",
+        "markbaker/complex": "^3.0"
+    }
+}
